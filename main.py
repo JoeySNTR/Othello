@@ -7,9 +7,7 @@ Created on Wed May  4 15:32:00 2022
 
 #imports
 
-import tkinter
 from tkinter import *
-from tkinter import ttk
 import numpy as np
 
 
