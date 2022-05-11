@@ -317,7 +317,10 @@ def play_simple():
     ordi=1      #active le premier ordi
                 
             
-
+def play_difficile():
+    global ordi
+    play_PvP()
+    ordi=2
     
 
 #fenêtre
