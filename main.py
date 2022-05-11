@@ -283,11 +283,19 @@ def retour():       #permet de revenir au coup précédent
     
     
 def play_PvP():         #met en place le jeu et les pièces de départ
-    global matrice,piece_played,player,color,cases,choice,ordi
+    global matrice,piece_played,player,color,cases,choice,ordi,matrice_coeff
     player=1        #définit le premier joueur
     color='black'
     plateau()       #créer le terrain
     matrice=np.ones((8,8))*2;       #créer la matrice de jeu
+    matrice_coeff=np.array([[1000,-40,50,-10,-10,50,-40,1000],
+                           [-40,-50,-10,0,0,-10,-50,-40],
+                           [50,-10,20,10,10,20,-10,50],
+                           [-10,0,10,10,10,10,0,-10],
+                           [-10,0,10,10,10,10,0,-10],
+                           [50,-10,20,10,10,20,-10,50],
+                           [-40,-50,-10,0,0,-10,-50,-40],
+                           [1000,-40,50,-10,-10,50,-40,1000]])
     matrice[4,4]=0; matrice[3,3]=0; matrice[4,3]=1; matrice[3,4]=1;         #place les pions de départ dans la matrice
     piece_played=4;         #initialise le compte de pièces jouées
     pion(5,5,0)         #déssine les pièces de départ
@@ -341,15 +349,7 @@ def ordi_hard(best_play,max_coeff):
                 
             
 def play_difficile():
-    global ordi,matrice_coeff
-    matrice_coeff=np.array([[1000,-40,50,-10,-10,50,-40,1000],
-                           [-40,-50,-10,0,0,-10,-50,-40],
-                           [50,-10,20,10,10,20,-10,50],
-                           [-10,0,10,10,10,10,0,-10],
-                           [-10,0,10,10,10,10,0,-10],
-                           [50,-10,20,10,10,20,-10,50],
-                           [-40,-50,-10,0,0,-10,-50,-40],
-                           [1000,-40,50,-10,-10,50,-40,1000]])
+    global ordi
     play_PvP()
     ordi=2
     
