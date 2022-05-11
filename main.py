@@ -58,7 +58,7 @@ def pion(ligne,colonne,player):         #créer un pion à l'emplacement donnée
 
 
 def point(click):       #fonction lier au click gauche
-    global player,matrice,matrice_retour,last_gain,last_pion,label,color,choice,piece_played,cases,piece_gagnee,best_case,ordi
+    global player,matrice,matrice_retour,last_gain,last_pion,label,color,choice,piece_played,cases,piece_gagnee,best_case,ordi,best_play,max_coeff
     matrice_retour=matrice.copy();      #créer une copie de la matrice pour faire des comparaisons et des retour en arrière
     ite_ligne,ite_colonne=0,0;
     for j in range(64):         #traverse toute la liste grille
@@ -88,7 +88,9 @@ def point(click):       #fonction lier au click gauche
                     can.delete(element)
                 choice=possibility()        #affiche les nouvelles possibilités de jeux
                 if ordi==1:         #vérifie si c'est l'ordi qui joue
-                    ordi_simple(best_case)          #fait jouer l'ordi
+                    ordi_simple(best_case,max_gain)          #fait jouer l'ordi
+                if ordi==2:
+                    ordi_hard(best_play,max_coeff)
         ite_colonne=ite_colonne+1;
     if len(choice)==0:          #passe le tour du joueur s'il ne peut pas jouer
         player=(player+1)%2;
@@ -232,9 +234,10 @@ def gain(ligne,colonne,player):         #calcule et affiche les pièces obtenues
  
 
 def possibility():          #permet d'afficher les possibilités de jeu
-    global cases,matrice,player,piece_gagnee,best_case
+    global cases,matrice,player,piece_gagnee,best_case,max_gain, max_coeff, best_play,matrice_coeff
     ite_ligne,ite_colonne=0,0;
     max_gain=0
+    max_coeff=-100
     choice=[]       #créer une liste des options où on peut jouer 
     for j in range(64):         #fait défilier les cases pour la vérification
         matrice_retour=matrice.copy()       #permettra de revenir à la matrice d'origine
@@ -248,6 +251,9 @@ def possibility():          #permet d'afficher les possibilités de jeu
                 if max_gain<piece_gagnee:
                     max_gain=piece_gagnee
                     best_case=[ite_ligne+1,ite_colonne+1]
+                if max_coeff<matrice_coeff[ite_ligne,ite_colonne]:
+                    max_coeff=matrice_coeff[ite_ligne,ite_colonne]
+                    best_play=[ite_ligne+1,ite_colonne+1]
                 choice.append(can.create_oval(cases[j][0],cases[j][1],cases[j][2],cases[j][3],fill='#C63F10'))
             matrice=matrice_retour.copy()       #revient à la matrice d'origine
             for element in test:        #efface les pièces déssinées par la fonction gain
@@ -293,9 +299,9 @@ def play_PvP():         #met en place le jeu et les pièces de départ
     
     
     
-def ordi_simple(best_case):
+def ordi_simple(best_case,max_gain):
     global player,piece_played,choice
-    if best_case!=0 and piece_played!=64:        #vérifie que l'ordi peut effectivement jouer
+    if max_gain!=0 and piece_played!=64:        #vérifie que l'ordi peut effectivement jouer
         matrice[best_case[0]-1,best_case[1]-1]=0;          #modifiacation de la matrice
         pion(best_case[0],best_case[1],0);          #dessine la pièce de l'ordi
         gain(best_case[0],best_case[1],0)           #dessine les gains de l'ordi
@@ -315,10 +321,35 @@ def play_simple():
     global ordi
     play_PvP()
     ordi=1      #active le premier ordi
+    
+    
+    
+def ordi_hard(best_play,max_coeff):
+    global player,piece_played,choice
+    if max_coeff!=-100 and piece_played!=64:        #vérifie que l'ordi peut effectivement jouer
+        matrice[best_play[0]-1,best_play[1]-1]=0;          #modifiacation de la matrice
+        pion(best_play[0],best_play[1],0);          #dessine la pièce de l'ordi
+        gain(best_play[0],best_play[1],0)           #dessine les gains de l'ordi
+        label['text'] ="black, do your best !"
+        piece_played=piece_played+1;
+        for element in choice:          #détruit les ronds rouges qui signalent les possibilités de jeu
+            can.delete(element)
+    else:
+        label['text']="black, double turn !"
+    player=(player+1)%2
+    choice=possibility()    
                 
             
 def play_difficile():
-    global ordi
+    global ordi,matrice_coeff
+    matrice_coeff=np.array([[1000,-40,50,-10,-10,50,-40,1000],
+                           [-40,-50,-10,0,0,-10,-50,-40],
+                           [50,-10,20,10,10,20,-10,50],
+                           [-10,0,10,10,10,10,0,-10],
+                           [-10,0,10,10,10,10,0,-10],
+                           [50,-10,20,10,10,20,-10,50],
+                           [-40,-50,-10,0,0,-10,-50,-40],
+                           [1000,-40,50,-10,-10,50,-40,1000]])
     play_PvP()
     ordi=2
     
@@ -341,6 +372,7 @@ Button(window,text='Retour',command=retour).pack(side =LEFT)        #crée le bo
 label = Label(window, text="black, do your best !")         #initialise le premier message
 label.pack(side=LEFT)
 Button(window,text='Play PvP',command=play_PvP).pack(side=RIGHT)        #crée le boutton pour une partie à deux joueur
+Button(window,text='Play hard',command=play_difficile).pack(side=RIGHT)
 Button(window,text='Play simple',command=play_simple).pack(side=RIGHT)
 can.bind('<Button-1>',point)        #permet de lier le click à la fonction point
 
